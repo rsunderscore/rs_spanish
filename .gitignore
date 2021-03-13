@@ -136,4 +136,5 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
+# just for this project ignore html
+.html
