@@ -28,7 +28,7 @@ from datetime import time, datetime
 from spanish import web
 
 pd.set_option('display.max_columns',999)#don't show ellipses
-CACHEPTH = os.path.join(os.environ['pythonpath'], 'spanish')
+CACHEPTH = "."#os.path.join(os.environ['pythonpath'], 'spanish')
 CACHENM = 'spshelf'
 #CACHE = os.path.join(CACHEPTH, CACHENM)
 conjurl = r'https://www.spanishdict.com/conjugate/'
