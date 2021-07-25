@@ -20,3 +20,6 @@ In most cases this required parsing several tables, reformatting, and combining 
 The conjugation data structure is cached locally for offline used and increased speed for subsequent executions.  This method inherently tracks progress as the word 
 list grows over time as they are added to the cache.  I did attempt to record the users voice and compare with a stored sample, but I was unable to get microphone interface
 packages to work on Windows.  I suspect this is due to windows security features around microphone access but have not been able to find a workaround thus far.
+
+
+No LICENSE for re-use is granted at this time due to potential politics deriving from the web scraping aspects.  Copyright is retained by the original author.
