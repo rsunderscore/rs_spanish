@@ -17,13 +17,10 @@ Created on Mon Oct 12 19:18:39 2020
 import pandas as pd
 #from bs4 import BeautifulSoup
 import html5lib
-import re
-import os
+import re, os, sys, shelve
 from time import sleep
 from random import  shuffle#choice,
-import shelve
 from itertools import product
-import sys
 from datetime import time, datetime
 from spanish import web
 
@@ -174,29 +171,48 @@ def look_for_groups(d1):
     mo.groups()
 
 #%% read files
-def read_files():
+def read_config():
+    from configparser import ConfigParser
+    c = ConfigParser()
+    c.read('words.conf')
+    for x in c['DEFAULT'].keys(): #everythin is a string 
+        v = c['DEFAULT'][x]
+        try:
+            v = float(v) if "." in v else int(v)
+        except Exception as e:
+            print(e)
+            from dateutil.parser import parse, ParserError
+            try:
+                v=parse(v)
+            except ParserError as e:
+                print(e.with_traceback())
+                print(dir(e))
+        print(f"{x} has value {v} of type {type(v)}")
+
+def read_vocab():
     with open('spanish stuff.html', 'r') as f:
         lines = f.read()
         
-    ss = BeautifulSoup(lines, features='lxml')
+    ss = web.BeautifulSoup(lines, features='lxml')
     print(ss.prettify()[:500])
     
-    [ (s.findPreviousSibling('h1').text, s.text) for s in ss.findAll('p')]
+    #[ (s.findPreviousSibling('h1').text, s.text) for s in ss.findAll('p')]
     def get_words(ss):
         for s in ss.findAll('p'):
             if len(s.text) < 2: continue
             try:
-                t=s.findPreviousSibling('h1').text
+                t=s.findPreviousSibling('h2').text
                 print(s.text, t)
             except AttributeError:
                 print(s.text, None)
                 
     def get_category(s):
-        t=s.findPreviousSibling('h1')
+        t=s.findPreviousSibling('h2')
         ttext = t.text if t else None
         return ttext
     allwords = pd.DataFrame([ (get_category(s), s.text) for s in ss.findAll('p') if len(s.text) >1],
                  columns=['Category','Text'])
+    allwords2 = allwords[pd.notnull(allwords['Category'])]
     
     out = allwords['Text'].apply(lambda x: pd.Series(x.split("=")) )#, index=['key', 'val']
     out[2].value_counts()
@@ -204,7 +220,8 @@ def read_files():
     #pd.Series((get_category(s),),  index=['cat'])
     
     altcodes = pd.read_html(lines)[0] # first table should be alt codes
-    
+
+def read_odf():
     #engine = odf requires odfpy
     sheets = pd.read_excel("esp_conj.ods", engine="odf", skiprows=1)#pd.read_excel("the_document.ods", engine="odf")
 
