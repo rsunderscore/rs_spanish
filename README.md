@@ -1,5 +1,5 @@
 # rs_spanish
-## leaning spanish during COVID
+## learning spanish during COVID
 I took up spanish(again) during COVID and I wanted a Q&A type game to practice vocabulary and conjugations.  
 I also wanted to prevent data entry errors for accented letters so there is a module that will go to the internet and look up data from a web site.  
 Translations are then cached locally.
