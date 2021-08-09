@@ -170,6 +170,7 @@ def look_for_groups(d1):
     mo = rx.search(str(d1))
     mo.groups()
 
+#extra line
 #%% read files
 def read_config():
     from configparser import ConfigParser
@@ -195,6 +196,7 @@ def read_vocab():
         
     ss = web.BeautifulSoup(lines, features='lxml')
     print(ss.prettify()[:500])
+    altcodes = pd.read_html(lines)[0] # first table should be alt codes
     
     #[ (s.findPreviousSibling('h1').text, s.text) for s in ss.findAll('p')]
     def get_words(ss):
@@ -214,13 +216,59 @@ def read_vocab():
                  columns=['Category','Text'])
     allwords2 = allwords[pd.notnull(allwords['Category'])]
     
-    out = allwords['Text'].apply(lambda x: pd.Series(x.split("=")) )#, index=['key', 'val']
-    out[2].value_counts()
-    out[pd.notnull(out[2])]
-    #pd.Series((get_category(s),),  index=['cat'])
     
-    altcodes = pd.read_html(lines)[0] # first table should be alt codes
+    #split the words and meanings into a df and join back with the orig
+    #out = allwords['Text'].apply(lambda x: pd.Series(x.split("=")) )#, index=['key', 'val']
+    out = allwords2['Text'].str.split('=', expand=True)
+    out.columns=['Q','A']
+    allwords3 = allwords2.join(out)
+    #if there are multiple options for response split them into an array
+    allwords3['A'] = allwords3['A'].str.replace('[\n\t]',' ').str.strip()
+    allwords3['Q'] = allwords3['Q'].str.replace('[\n\t]',' ').str.strip()
+    #'/' is sometimes used to split other things not just diff answers
+    # need to standardize the separator
+    allwords3[allwords3['A'].str.contains('/',na=False)]
+    
+    return allwords3, altcodes
 
+def endless_vocab():
+    
+    while True:
+        aw2 = aw[aw['Category'].str.contains('words',False)].sample(1)
+        w = aw2.iloc[0]
+        print("\n", w['Q'], end="")
+        r = input("what's the answer -- ")
+        if len(r)<1:
+            break
+        if re.match(r'quit',r, re.I):
+            print('matched quit string')
+            break
+        if re.search( r, w['A'], re.I) != None:
+            print("CORRECT", w['A'])
+        else: 
+            print("we were looking for -- ", w['A'])
+        
+        
+def test_read_vocab():
+    aw, ac = read_vocab()
+    aw.Category.value_counts()
+    aw[aw['Category'].str.contains('keybo',False, regex=True,)]
+    aw2 = aw[aw['Category'].str.contains('words',False)].sample(10)
+    for w in aw2.itertuples():
+        #print(w.Q)
+        w = w._asdict()#underscore method to index by name
+        print("\n", w['Q'], end="")
+        r = input("what's the answer -- ")
+        if len(r)<1:
+            break
+        if re.match(r'quit',r, re.I):
+            print('matched quit string')
+            break
+        if re.search( r, w['A'], re.I) != None:
+            print("CORRECT", w['A'])
+        else: 
+            print("we were looking for -- ", w['A'])
+    
 def read_odf():
     #engine = odf requires odfpy
     sheets = pd.read_excel("esp_conj.ods", engine="odf", skiprows=1)#pd.read_excel("the_document.ods", engine="odf")
