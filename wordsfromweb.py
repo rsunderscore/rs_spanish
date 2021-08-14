@@ -67,6 +67,7 @@ def mundostuff(s):
     for sec in e.find_all('section'):
         print(sec.find(re.compile('^h[1-6]$')).get_text(strip=True))
     e.get_text()[:300]
+    
 def _scratch(s):
 
     len(s.find_all('img'))
