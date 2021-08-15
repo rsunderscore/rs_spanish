@@ -174,8 +174,10 @@ def look_for_groups(d1):
 #%% read files
 def read_config():
     from configparser import ConfigParser
-    c = ConfigParser()
-    c.read('words.conf')
+    c = ConfigParser(strict=False)
+    c.read('words.conf', encoding ='utf8')#should be utf8
+    #has problems with certain spanish characters?
+    sorted(c['DEFAULT'].keys())
     for x in c['DEFAULT'].keys(): #everythin is a string 
         v = c['DEFAULT'][x]
         try:
