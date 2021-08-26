@@ -4,7 +4,12 @@
 Created on Mon Aug  9 23:31:28 2021
 
 @author: rob
+
+use case: what are spanish words that are most common in recent knews -> 
+learn those words first
 """
+
+#note the nltk snowball stemmer has a Spanish mode
 
 import requests, re
 import pandas as pd
@@ -18,10 +23,17 @@ def myget(url):
     r = requests.get(url)
     assert r.status_code == 200 #throw assertion error if get failed
     h = r.content #bytes string
-    s = BeautifulSoup(h)
+    s = BeautifulSoup(h, features='lxml')#lxml is default but throws a warning unless lxml is explictly specified
     s = remscript(s)
     #verify all script tags deleted
     assert len(s.find_all('script')) == 0
+    # path seems to used for react and not human readable (maybe part of the js framework)
+    for t in s.find_all('path'):
+        t.decompose()
+    #remove empty div tags???
+    for d in s.find_all('div'):
+        if len(d.get_text(strip=True)) ==0:
+            d.extract()
     return s
 
 
