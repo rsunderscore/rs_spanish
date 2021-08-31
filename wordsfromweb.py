@@ -14,6 +14,7 @@ learn those words first
 import requests, re
 import pandas as pd
 from bs4 import BeautifulSoup
+import shelve
 
 
 URLS = {'articles':r'http://bbc.com/mundo', 'scandal': r'http://judgeforyourselves.com/info'}
@@ -56,6 +57,25 @@ def article_links_full(s):
 
 def all_links(s):
     return  s.find_all('a', href=True)
+
+
+
+def save_articles(article_dict):
+    s = shelve.open('artdict')
+    for k in article_dict.keys():
+        s[k] = article_dict[k].prettify()
+    s.close()
+
+def load_saved_articles():
+
+    d = dict()
+    s=shelve.open('artdict')
+    for k in s.keys():
+        #avoid the warning about 'best available parser'
+        d[k] = BeautifulSoup(s[k], features='lxml').find() #get it back to the same type as the original
+    #
+    s.close()
+    return d
 
 def mundostuff(s):
     theurl = URLS['articles']
